@@ -1,0 +1,53 @@
+<?php
+
+namespace App\Repositories;
+
+use App\Invoice;
+use App\InvoiceItem;
+use DB;
+
+class InvoiceRepository {
+    private $model;
+    
+    public function __construct(){
+        $this->model = new Invoice();
+    }
+
+    public function save($data) {
+    	$return = (object)[
+    		'response' => false
+    	];
+
+    	try{
+    		DB::beginTransaction();
+
+    		$this->model->iva = $data->iva;
+	    	$this->model->subTotal = $data->subTotal;
+	    	$this->model->total = $data->total;
+	    	$this->model->client_id = $data->client_id;
+
+	    	$this->model->save();
+
+	    	$details = [];
+	    	foreach ($data->details as $d) {
+	    		$obj = new InvoiceItem;
+
+	    		$obj->product_id = $d->product_id;
+	    		$obj->quantity = $d->quantity;
+	    		$obj->unitPrice = $d->unitPrice;
+	    		$obj->total = $d->total;
+
+	    		$details[] = $obj;
+	    	}
+
+	        $this->model->details()->saveMany($details);
+	        $return->response = true;
+
+    		DB::commit();
+    	}catch(\Exception $e){
+    		DB::rollBack();
+    	}
+
+        return json_encode($return);
+    }
+}

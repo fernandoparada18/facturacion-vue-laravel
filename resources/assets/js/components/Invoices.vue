@@ -23,19 +23,19 @@
 
 					    <div class="row">
 					        <div class="col-xs-7">
-					            <input id="product" class="form-control" type="text" placeholder="Nombre del producto" />
+					            <input id="product" class="form-control" type="text" placeholder="Nombre del producto" v-model="fillProduct.name"/>
 					        </div>
 					        <div class="col-xs-2">
-					            <input id="quantity" class="form-control" type="text" placeholder="Cantidad" />
+					            <input class="form-control" type="text" placeholder="Cantidad" v-model="fillProduct.quantity"/>
 					        </div>
 					        <div class="col-xs-2">
 					            <div class="input-group">
 					                <span class="input-group-addon" id="basic-addon">Bs.S</span>
-					                <input class="form-control" type="text" placeholder="Precio" readonly />
+					                <input class="form-control" type="text" placeholder="Precio" v-model="fillProduct.price" readonly />
 					            </div>
 					        </div>
 					        <div class="col-xs-1">
-					            <button class="btn btn-primary form-control" id="btn-agregar">
+					            <button class="btn btn-primary form-control" v-on:click.prevent="addProductToDetail()">
 					                <i class="glyphicon glyphicon-plus"></i>
 					            </button>
 					        </div>
@@ -49,38 +49,38 @@
 					            <th style="width:40px;"></th>
 					            <th>Producto</th>
 					            <th style="width:100px;">Cantidad</th>
-					            <th style="width:100px;">P.U</th>
-					            <th style="width:100px;">Total</th>
+					            <th style="width:110px;">P.U</th>
+					            <th style="width:120px;">Total</th>
 					        </tr>
 					        </thead>
 					        <tbody>
-					        <tr>
+					        <tr v-for="detail in details">
 					            <td>
-					                <button class="btn btn-danger btn-xs btn-block">X</button>
+					                <button class="btn btn-danger btn-xs btn-block" v-on:click.prevent="removeProductFromDetail(detail)">X</button>
 					            </td>
-					            <td></td>
-					            <td class="text-right"></td>
-					            <td class="text-right"></td>
-					            <td class="text-right"></td>
+					            <td>{{ detail.name }}</td>
+					            <td class="text-center">{{ detail.quantity }}</td>
+					            <td class="text-right">Bs.S {{ detail.price }}</td>
+					            <td class="text-right">Bs.S {{ detail.total.toFixed(2) }}</td>
 					        </tr>
 					        </tbody>
 					        <tfoot>
 					        <tr>
 					            <td colspan="4" class="text-right"><b>IVA</b></td>
-					            <td class="text-right"></td>
+					            <td class="text-right">Bs.S {{ iva.toFixed(2) }}</td>
 					        </tr>
 					        <tr>
 					            <td colspan="4" class="text-right"><b>Sub Total</b></td>
-					            <td class="text-right"></td>
+					            <td class="text-right">Bs.S {{ subTotal.toFixed(2) }}</td>
 					        </tr>
 					        <tr>
 					            <td colspan="4" class="text-right"><b>Total</b></td>
-					            <td class="text-right"></td>
+					            <td class="text-right">Bs.S {{ total.toFixed(2) }}</td>
 					        </tr>
 					        </tfoot>
 					    </table>
 
-					    <button class="btn btn-default btn-lg btn-block">
+					    <button v-on:click.prevent="save" class="btn btn-default btn-lg btn-block">
 					        Guardar
 					    </button>
 					</div>
@@ -97,12 +97,63 @@
 		data: function() {
             return {
                 fillClient: {'id': 0, 'dni': '', 'address': ''},
+                fillProduct: {'id': 0, 'name': '', 'quantity': '', 'price': ''},
+                details: [],
+        		iva: 0,
+        		subTotal: 0,
+        		total: 0,
             }
         },
         mounted: function() {
             this.clientAutocomplete();
+            this.productAutocomplete();
         },
         methods: {
+        	removeProductFromDetail: function(item) {
+	            var index = this.details.indexOf(item);
+	            this.details.splice(index, 1);
+	            this.calculate();
+	        },
+        	addProductToDetail: function() {
+	            this.details.push({
+	                id: this.fillProduct.id,
+	                name: this.fillProduct.name,
+	                quantity: parseFloat(this.fillProduct.quantity),
+	                price: parseFloat(this.fillProduct.price),
+	                total: parseFloat(this.fillProduct.price * this.fillProduct.quantity)
+	            });
+
+	            this.fillProduct = {'id': 0, 'name': '', 'quantity': '', 'price': ''};
+
+	            this.calculate();
+	        },
+	        save: function() {
+	        	var url = '/invoices/save';
+	            axios.post(url, { 
+	            	iva: this.iva, 
+	            	subTotal: this.subTotal, 
+	            	total: this.total, 
+	            	client_id: this.fillClient.id, 
+	            	details: this.details
+	            }).then(r => {
+	                if (r.data.response) {
+	                	window.location.href = '/home';
+	                }else{
+	                	alert('Ocurrio un error...!!!');
+	                }
+	            });
+	        },
+	        calculate: function() {
+	            var total = 0;
+
+	            this.details.forEach(function(e){
+	                total += e.total;
+	            });
+
+	            this.total = total;
+	            this.subTotal = parseFloat(total / 1.12);
+	            this.iva = parseFloat(total - this.subTotal);
+	        },
             clientAutocomplete: function(){
             	var self = this;
 	            var client = $("#client"),
@@ -122,6 +173,26 @@
 	            };
 
 	            client.easyAutocomplete(options);
+	        },
+	        productAutocomplete: function(){
+	        	var self = this;
+	            var product = $("#product"),
+	                options = {
+	                url: function(name) {
+	                    return '/invoices/findProduct?name=' + name;
+	                },
+	                getValue: 'name',
+	                list: {
+	                    onClickEvent: function() {
+	                        var e = product.getSelectedItemData();
+	                        self.fillProduct.id = e.id;
+	                        self.fillProduct.name = e.name;
+	                        self.fillProduct.price = e.price;
+	                    }
+	                }
+	            };
+
+	            product.easyAutocomplete(options);
 	        }
         }
     }

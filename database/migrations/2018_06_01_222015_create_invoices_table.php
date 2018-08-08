@@ -31,6 +31,7 @@ class CreateInvoicesTable extends Migration
             $table->decimal('total', 10,2);
             $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 
