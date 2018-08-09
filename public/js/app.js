@@ -45434,19 +45434,21 @@ var render = function() {
               ])
             ]),
             _vm._v(" "),
-            _c(
-              "button",
-              {
-                staticClass: "btn btn-default btn-lg btn-block",
-                on: {
-                  click: function($event) {
-                    $event.preventDefault()
-                    return _vm.save($event)
-                  }
-                }
-              },
-              [_vm._v("\n\t\t\t\t        Guardar\n\t\t\t\t    ")]
-            )
+            _vm.details.length > 0 && _vm.fillClient.id > 0
+              ? _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-default btn-lg btn-block",
+                    on: {
+                      click: function($event) {
+                        $event.preventDefault()
+                        return _vm.save($event)
+                      }
+                    }
+                  },
+                  [_vm._v("\n\t\t\t\t        Guardar\n\t\t\t\t    ")]
+                )
+              : _vm._e()
           ])
         ])
       ])

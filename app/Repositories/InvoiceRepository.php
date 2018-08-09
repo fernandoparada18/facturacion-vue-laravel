@@ -13,6 +13,10 @@ class InvoiceRepository {
         $this->model = new Invoice();
     }
 
+    public function getAll() {
+        return $this->model->get();
+    }
+
     public function save($data) {
     	$return = (object)[
     		'response' => false

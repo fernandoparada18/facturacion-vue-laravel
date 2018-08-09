@@ -80,7 +80,7 @@
 					        </tfoot>
 					    </table>
 
-					    <button v-on:click.prevent="save" class="btn btn-default btn-lg btn-block">
+					    <button v-if="details.length > 0 && fillClient.id > 0" v-on:click.prevent="save" class="btn btn-default btn-lg btn-block">
 					        Guardar
 					    </button>
 					</div>
