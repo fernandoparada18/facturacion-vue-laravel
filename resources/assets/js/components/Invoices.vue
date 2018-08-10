@@ -137,7 +137,7 @@
 	            	details: this.details
 	            }).then(r => {
 	                if (r.data.response) {
-	                	window.location.href = '/home';
+	                	window.location.href = '/invoices';
 	                }else{
 	                	alert('Ocurrio un error...!!!');
 	                }

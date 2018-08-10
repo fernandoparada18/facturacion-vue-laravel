@@ -43490,7 +43490,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 																details: this.details
 												}).then(function (r) {
 																if (r.data.response) {
-																				window.location.href = '/home';
+																				window.location.href = '/invoices';
 																} else {
 																				alert('Ocurrio un error...!!!');
 																}

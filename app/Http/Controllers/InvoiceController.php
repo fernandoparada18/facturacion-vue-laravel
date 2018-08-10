@@ -18,6 +18,7 @@ class InvoiceController extends Controller
 		ProductRepository $product,
         InvoiceRepository $invoice
 	){
+        $this->middleware('auth');
 		$this->_client = $client;
 		$this->_product = $product;
         $this->_invoice = $invoice;
@@ -38,6 +39,20 @@ class InvoiceController extends Controller
     }
 
     /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        return view('invoices.show', [
+                'model' => $this->_invoice->get($id)
+            ]
+        );
+    }
+
+    /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
@@ -53,7 +68,7 @@ class InvoiceController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function save(Request $request)
+    public function store(Request $request)
     {
         $data = (object)[
             'iva' => $request->input('iva'),
