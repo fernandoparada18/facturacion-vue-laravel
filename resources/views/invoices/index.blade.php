@@ -19,6 +19,7 @@
                         <th style="width:160px;" class="text-right">Sub Total</th>
                         <th style="width:160px;" class="text-right">Total</th>
                         <th style="width:180px;" class="text-right">Creado</th>
+                        <th style="..."></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -33,6 +34,11 @@
                         <td class="text-right">Bs.S {{ number_format($m->subTotal, 2, ",", ".") }}</td>
                         <td class="text-right">Bs.S {{ number_format($m->total, 2, ",", ".") }}</td>
                         <td class="text-right">{{ $m->created_at->format('d-m-Y h:i A') }}</td>
+                        <td>
+                            <a class="btn btn-success btn-block btn-xs" href="{{ url('invoices/pdf/'.$m->id) }}">
+                                <i class="fa fa-file-pdf-o"></i> Descargar
+                            </a>
+                        </td>
                     </tr>
                     @endforeach
                 </tbody>
